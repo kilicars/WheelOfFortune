@@ -17,24 +17,25 @@ class WheelOfFortune:
         self.winner = None
         self.cur_player = None
         self.cur_player_index = -1
+        self.colorful = Colorful()
 
     def print_header(self):
         symbols = "=" * 70
         header = f"{symbols}\n"
         header += f"{' ' * 27}{self.game_name}{' ' * 27}\n"
         header += f"{symbols}\n\n"
-        print(Colorful.color_text("magenta", header))
+        print(self.colorful.color_text("magenta", header))
 
     def print_board(self):
         symbols = "-" * 70
         text = f"\n{symbols}\n{self.board.get_current_board()}\n{symbols}\n"
-        print(Colorful.color_text("blue", text))
+        print(self.colorful.color_text("blue", text))
 
     def init_game(self):
         self.print_header()
         self.players = self.get_players()
         if len(self.players) == 0:
-            print(Colorful.color_text("red", "We need players to play!"))
+            print(self.colorful.color_text("red", "We need players to play!"))
             exit()
         self.board.set_category_phrase()
 
@@ -68,10 +69,10 @@ class WheelOfFortune:
         self.cur_player = self.players[self.cur_player_index]
 
     def spin_wheel(self):
-        print(Colorful.color_text("green", f"{self.cur_player.name} spins..."))
+        print(self.colorful.color_text("green", f"{self.cur_player.name} spins..."))
         spin_result = self.wheel.spin()
         time.sleep(2)
-        print(f"Spin outcome is {Colorful.color_text('magenta', spin_result.text)}!")
+        print(f"Spin outcome is {self.colorful.color_text('magenta', spin_result.text)}!")
         return spin_result
 
     def request_move(self, player):
@@ -80,34 +81,34 @@ class WheelOfFortune:
             move = player.get_move(self.board.guessed_letters).upper()
             if len(move) == 1:  # they guessed a character
                 if move not in constants.LETTERS:  # the user entered an invalid letter (such as @, #, or $)
-                    print(Colorful.color_text("red", "Guesses should be letters. Please try again.\n"))
+                    print(self.colorful.color_text("red", "Guesses should be letters. Please try again.\n"))
                 elif move in self.board.guessed_letters:  # this letter has already been guessed
-                    print(Colorful.color_text("red", f"{move} has already been guessed. Please try again.\n"))
+                    print(self.colorful.color_text("red", f"{move} has already been guessed. Please try again.\n"))
                 elif move in constants.VOWELS and player.prize_money < constants.VOWEL_COST:  # if it's a vowel, we need to be sure the player has enough
-                    print(Colorful.color_text("red", f"You need ${constants.VOWEL_COST} to guess a vowel. Please try again.\n"))
+                    print(self.colorful.color_text("red", f"You need ${constants.VOWEL_COST} to guess a vowel. Please try again.\n"))
                 else:
                     return move
             else:
                 return move
 
     def process_move(self, letter, value, prize):
-        print(Colorful.color_text("green", f"{self.cur_player.name} guesses {letter}"))
+        print(self.colorful.color_text("green", f"{self.cur_player.name} guesses {letter}"))
         self.board.add_guessed_letter(letter)
         if letter in constants.VOWELS:
             self.cur_player.buy_vowel()
         count = self.board.phrase.count(letter)  # returns an integer with how many times this letter appears
         if count > 0:
             if count == 1:
-                print(Colorful.color_text("magenta", f"There is one {letter}"))
+                print(self.colorful.color_text("magenta", f"There is one {letter}"))
             else:
-                print(Colorful.color_text("magenta", f"There are {count} {letter}'s"))
+                print(self.colorful.color_text("magenta", f"There are {count} {letter}'s"))
             self.cur_player.add_earnings(count * value, prize)
             print(self.cur_player)
             if self.board.is_phrase_revealed():  # all of the letters have been guessed
                 self.winner = self.cur_player
             return True  # this player gets to go again
         elif count == 0:
-            print(Colorful.color_text("red", f"There is no {letter}"))
+            print(self.colorful.color_text("red", f"There is no {letter}"))
             return False
 
     def print_game_result(self):
@@ -116,7 +117,7 @@ class WheelOfFortune:
             result += f"{self.winner.win_message()}\n"
         else:
             result += "Nobody won.\n"
-        print(Colorful.color_text("magenta", result))
+        print(self.colorful.color_text("magenta", result))
 
     def play(self):
         self.init_game()
@@ -136,10 +137,10 @@ class WheelOfFortune:
             elif spin_result.typ == SpinResultType.CASH:
                 move = self.request_move(self.cur_player)
                 if move == "EXIT":
-                    print(Colorful.color_text("magenta", "\nBye!"))
+                    print(self.colorful.color_text("magenta", "\nBye!"))
                     break
                 elif move == "PASS":
-                    print(Colorful.color_text("green", f"{self.cur_player.name} passes"))
+                    print(self.colorful.color_text("green", f"{self.cur_player.name} passes"))
                     continue_cur_player = False
                 elif len(move) == 1:  # they guessed a letter
                     continue_cur_player = self.process_move(move, spin_result.value, spin_result.prize)
@@ -148,7 +149,7 @@ class WheelOfFortune:
                         self.winner = self.cur_player
                         self.cur_player.add_earnings(spin_result.value, spin_result.prize)
                     else:
-                        print(Colorful.color_text("red", f"{move} was not the phrase"))
+                        print(self.colorful.color_text("red", f"{move} was not the phrase"))
                         continue_cur_player = False
             time.sleep(2)
         self.print_game_result()

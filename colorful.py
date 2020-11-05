@@ -1,10 +1,10 @@
-from colorama import Fore
+from colorama import Fore, init
 
 
 class Colorful:
-    @staticmethod
-    def color_text(color, text):
-        colors = {
+    def __init__(self):
+        init(strip=False)
+        self.colors = {
             "blue": Fore.BLUE,
             "green": Fore.GREEN,
             "magenta": Fore.MAGENTA,
@@ -12,4 +12,8 @@ class Colorful:
             "yellow": Fore.YELLOW,
             "cyan": Fore.CYAN
         }
-        return f"{colors[color]}{text}{Fore.RESET}"
+        self.reset = Fore.RESET
+
+    def color_text(self, color, text):
+
+        return f"{self.colors[color]}{text}{self.reset}"
